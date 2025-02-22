@@ -1,0 +1,12 @@
+autogen-agentchat
+autogen-core
+autogen-ext
+autogen_watsonx_client
+langchain-core
+langchain-ibm
+openai
+python-dotenv
+streamlit
+pdfplumber
+st-circular-progress
+pandas
