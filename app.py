@@ -1,9 +1,10 @@
-import streamlit as st
+import base64
 import pdfplumber
+import streamlit as st
 from backend.basic_checker import basic_checker
 from backend.candidate import Candidate
-import base64
 
+# Hide the sidebar
 st.markdown(
     """
 <style>
@@ -19,6 +20,7 @@ st.markdown(
 vert_space = '<div style="marign-top: 2px 5px;"></div>'
 st.markdown(vert_space, unsafe_allow_html=True)
 
+# Display the logo
 def get_base64_image(image_path):
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode()
@@ -36,6 +38,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# Display the job posting and resume inputs
 job_posting = st.text_area(
     "Enter the Job reqirements",
     "",
@@ -51,15 +54,24 @@ if uploaded_file is not None:
     
     resume_content = text
 
-
+# number of questions per skill
 questions_count = st.number_input("Number of questions per skill",min_value=5, max_value=50)
 
+# Run the workflow
 def run_workflow(job_posting, resume_content, questions_count):
     if not job_posting or not resume_content or not questions_count:
         st.error("First Fill all inputs")
         return
-    # Job Posting, Resume Reader -> CheckBasic
+    
+     # Job Posting, Resume Reader -> CheckBasic
     basic_response = basic_checker(job_posting, resume_content)
+    
+    # if basic response has some error
+    if not basic_response:
+        st.error("Something went wrong")
+        return
+   
+    # create a candidate object
     candidate_object = Candidate()
     candidate_object.name = basic_response["name"]
     candidate_object.experience = basic_response["experience"]
@@ -70,7 +82,7 @@ def run_workflow(job_posting, resume_content, questions_count):
     candidate_object.matching_score = basic_response["matching_score"]
     candidate_object.summary = basic_response["summary"]
     
-    # # save this object in session
+    # save this object in session
     st.session_state["current_candidate"] = candidate_object
     st.switch_page("pages/analysis.py")
 

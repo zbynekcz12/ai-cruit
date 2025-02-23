@@ -1,6 +1,7 @@
 import os
-import asyncio
 import re
+import asyncio
+from dotenv import load_dotenv
 from autogen_agentchat.agents import AssistantAgent
 from autogen_agentchat.base import TaskResult
 from autogen_agentchat.conditions import TextMentionTermination
@@ -8,11 +9,11 @@ from autogen_agentchat.teams import RoundRobinGroupChat
 from autogen_watsonx_client.config import WatsonxClientConfiguration
 from autogen_watsonx_client.client import WatsonXChatCompletionClient
 from backend.constants import WATSONX_URL, WATSONX_MODEL
-from dotenv import load_dotenv
 
 load_dotenv()
 
 def extract_percentage(text):
+    # Extract percentage from text
     match = re.search(r'(\d+)%', text)
     if match:
         return int(match.group(1))
@@ -29,18 +30,21 @@ async def main(job_posting, resume_content):
 
     wx_client = WatsonXChatCompletionClient(**wx_config)
 
+    # agent for calculate matching score
     primary_agent = AssistantAgent(
         "primary",
         model_client=wx_client,
         system_message="You are a helpful AI assistant.Find matching score between job requiremnets and resume of the candidate",
     )
 
+    # agent for validate matching score
     critic_agent = AssistantAgent(
         "critic",
         model_client=wx_client,
         system_message="Provide constructive feedback. analyze the matching score whether it is reliable or not. if you feel it is not correct then 'REJECT' it .Respond with 'APPROVE' and with matching score to when your feedbacks are addressed.",
     )
 
+    # 'APPROVE' termination condition
     text_termination = TextMentionTermination("APPROVE")
 
     team = RoundRobinGroupChat([primary_agent, critic_agent], termination_condition=text_termination)
@@ -62,6 +66,9 @@ async def main(job_posting, resume_content):
     return extract_percentage(matching_score)
 
 def run_match_score_agent(job_posting, resume_content):
-    score = asyncio.run(main(job_posting, resume_content))
-    return score
+    try:
+        score = asyncio.run(main(job_posting, resume_content))
+        return score
+    except Exception as e:
+        raise e 
 

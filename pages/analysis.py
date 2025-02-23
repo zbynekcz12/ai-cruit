@@ -1,5 +1,5 @@
-import streamlit as st
 import pandas as pd
+import streamlit as st
 from st_circular_progress import CircularProgress
 from backend.basic_checker import get_personal_info
 from backend.basic_checker import get_questions
@@ -14,7 +14,7 @@ from backend.constants import (
     CERTIFICATION_COL_KEY
 )
 
-
+# Hide the sidebar
 st.markdown(
     """
 <style>
@@ -32,6 +32,7 @@ if st.button("⬅️ Back"):
 a, b = st.columns(2)
 c, d = st.columns(2)
 
+# Display the candidate details
 a.metric("Name", st.session_state["current_candidate"].name,border=True)
 b.metric("Experience", st.session_state["current_candidate"].experience,border=True)
 
@@ -46,7 +47,7 @@ def run(key):
         st.session_state["personal_info"] = get_personal_info(st.session_state["current_candidate"].resume_content)
     return st.session_state["personal_info"][key]
 
-
+# modal to show details
 @st.dialog("Details", width = "large")
 def show_modal(key, columns, columns_key):
     data = run(key)
@@ -81,7 +82,8 @@ with col5:
         cols = ["Category", "Value"]
         cols_key = ["category", "value"]
         show_modal("personal_information", cols, cols_key)
-        
+
+# Display the matching score     
 my_circular_progress = CircularProgress(
     label="Matching Score",
     value=st.session_state["current_candidate"].matching_score,
@@ -92,6 +94,7 @@ my_circular_progress = CircularProgress(
 my_circular_progress.st_circular_progress()
 st.title("Skills")
 
+# modal to show questions
 @st.dialog("Questions",width = "large")
 def skill_modal(skill):
     if "skill" not in st.session_state:
@@ -124,6 +127,7 @@ for i, skill in enumerate(skills):
         if st.button(skill):
             skill_modal(skill)
 
+# Display the summary
 st.title("Summary")
 for point in st.session_state["current_candidate"].summary:
     st.write(point)

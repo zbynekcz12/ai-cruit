@@ -1,7 +1,7 @@
+import os
 from dotenv import load_dotenv
 from langchain_ibm import ChatWatsonx
 from langchain_core.prompts import PromptTemplate
-import os
 from backend.constants import (
     WATSONX_PARAMS,
     WATSONX_MODEL,
@@ -11,6 +11,19 @@ from backend.constants import (
 load_dotenv()
 
 def run_llm(input_prompt, arguments):
+    """
+    Run the LLM with the given input prompt and arguments.
+
+    Args:
+        input_prompt (str): The input prompt to the LLM.
+        arguments (dict): The arguments to the input prompt.
+
+    Returns:
+        str: The response from the LLM.
+
+    Raises:
+        Exception: If there is an error running the LLM.
+    """
 
     llm = ChatWatsonx(
         model_id=WATSONX_MODEL,
